@@ -7,11 +7,17 @@ import sys
 import uuid
 import urllib.parse
 
-import arrow
 import flask
 from flask import Flask, request, jsonify
 from flask_mobility import Mobility
+from flask_restful import Resource, Api
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_security import Security, SQLAlchemyUserDatastore, \
+    UserMixin, RoleMixin, login_required
+
+
+import arrow
 import requests
 import redis
 import jsonschema
@@ -24,6 +30,8 @@ app.logger.setLevel(os.getenv(ENV_VAR_NAME_LOGLEVEL, logging.INFO))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
 Mobility(app)
+api = Api(app)
+
 
 
 class CacheIfCacheCan:
@@ -122,6 +130,12 @@ def send_icon():
 def default_page():
     return flask.render_template("index.jinja2")
 
+# RESTful API
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
+
+api.add_resource(HelloWorld, '/api/')
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
