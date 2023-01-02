@@ -33,7 +33,6 @@ Mobility(app)
 api = Api(app)
 
 
-
 class CacheIfCacheCan:
     """
     A wrapper around getting/setting to a redis back end, if configured. A convenience class so code doesn't have to
@@ -83,13 +82,13 @@ else:
     cache = CacheIfCacheCan(None)
 
 
-def log_requests_response(formated_msg_string, flask_response: flask.Response, level=logging.INFO, logger=app.logger):
+def log_requests_response(formatted_msg_string, flask_response: requests.Response, level=logging.INFO, logger=app.logger):
     try:
         log_id = str(uuid.uuid4())
 
         response_as_string = f"{str(flask_response.url)}\n\n{flask_response.status_code}\n\n{flask_response.headers}\n\n{str(flask_response.text)[:1024]}"
         b64_encoded_response_string = str(base64.b64encode(response_as_string.encode('utf-8')))
-        app.logger.log(level, formated_msg_string % {"log_id": log_id, "serialized_response": b64_encoded_response_string})
+        logger.log(level, formatted_msg_string % {"log_id": log_id, "serialized_response": b64_encoded_response_string})
 
         return log_id
 
@@ -130,10 +129,12 @@ def send_icon():
 def default_page():
     return flask.render_template("index.jinja2")
 
+
 # RESTful API
 class HelloWorld(Resource):
     def get(self):
         return {'hello': 'world'}
+
 
 api.add_resource(HelloWorld, '/api/')
 
